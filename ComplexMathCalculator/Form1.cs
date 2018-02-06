@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 
@@ -32,6 +25,7 @@ namespace ComplexMathCalculator
             Regex both = new Regex("([-]?[0-9]+\\.?([0-9]+)?)([-|+]+[0-9]+\\.?([0-9]+)?)[j$]+");
             Regex real = new Regex("([-]?[0-9]+\\.?([0-9]+)?)$");
             Regex imaginary = new Regex("([-]?[0-9]+\\.?([0-9]+)?)[j$]");
+            Regex phasor = new Regex("([-]?[0-9]+\\.?([0-9]+)?)\\|([-]?[0-9]+\\.?([0-9]+)?)");
             ComplexNumber C = new ComplexNumber();
             if (both.Match(s).Success)
             {
@@ -55,6 +49,23 @@ namespace ComplexMathCalculator
                     C.real = double.Parse(s.Substring(0, endindex));
                     string a = s.Substring(endindex + extra, s.IndexOf("j") - endindex - 1);
                     C.imaginary = double.Parse(s.Substring(endindex + extra, s.IndexOf("j") - endindex - extra));
+                }
+                catch
+                {
+                    ParseException ex = new ParseException();
+                    ex.number = s;
+                    throw ex;
+                }
+            }
+            else if (phasor.Match(s).Success)
+            {
+                try
+                {
+                    int index = s.IndexOf("|");
+                    double magnitude = double.Parse(s.Substring(0, index));
+                    double angle = (double.Parse(s.Substring(index + 1))) * Math.PI / 180;
+                    C.real = magnitude * Math.Cos(angle);
+                    C.imaginary = magnitude * Math.Sin(angle);
                 }
                 catch
                 {
